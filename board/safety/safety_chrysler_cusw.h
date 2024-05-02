@@ -95,17 +95,17 @@ static bool chrysler_cusw_tx_hook(const CANPacket_t *to_send) {
   bool tx = true;
   int addr = GET_ADDR(to_send);
 
-  if (addr == chrysler_cusw_addrs->LKAS_COMMAND) {
-    // Signal: LKAS_COMMAND.STEERING_TORQUE
-    int desired_torque = ((GET_BYTE(to_send, 0)) << 3) | ((GET_BYTE(to_send, 1) & 0xE0U) >> 5);
-    desired_torque -= 1024;
+  //if (addr == chrysler_cusw_addrs->LKAS_COMMAND) {
+  //  // Signal: LKAS_COMMAND.STEERING_TORQUE
+  //  int desired_torque = ((GET_BYTE(to_send, 0)) << 3) | ((GET_BYTE(to_send, 1) & 0xE0U) >> 5);
+  //  desired_torque -= 1024;
 
-    // Signal: LKAS_COMMAND.LKAS_CONTROL_BIT
-    const bool steer_req = GET_BIT(to_send, 12U);
-    if (steer_torque_cmd_checks(desired_torque, steer_req, CHRYSLER_CUSW_STEERING_LIMITS)) {
-      tx = false;
-    }
-  }
+  //  // Signal: LKAS_COMMAND.LKAS_CONTROL_BIT
+  //  const bool steer_req = GET_BIT(to_send, 12U);
+  //  if (steer_torque_cmd_checks(desired_torque, steer_req, CHRYSLER_CUSW_STEERING_LIMITS)) {
+  //    tx = false;
+  //  }
+  //}
 
   if (addr == chrysler_cusw_addrs->CRUISE_BUTTONS) {
     // Signal: CRUISE_BUTTONS.ACC_Cancel
