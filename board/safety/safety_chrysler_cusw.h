@@ -1,7 +1,18 @@
 #include "safety_chrysler_common.h"
 
 const SteeringLimits CHRYSLER_CUSW_STEERING_LIMITS = {
-  .max_steer = 261,
+  .max_steer = 260, // 2019 MODEL TEST, FAULT AT 261, GOOD AT 260
+  .max_rt_delta = 150,
+  .max_rt_interval = 250000,
+  .max_rate_up = 4,
+  .max_rate_down = 4,
+  .max_torque_error = 80,
+  .type = TorqueMotorLimited,
+};
+
+// Staging for future Sub-Platform  Logic
+const SteeringLimits JEEP_CHEROKEE_5TH_GEN_STEERING_LIMITS = {
+  .max_steer = 260, // 2019 MODEL TEST, FAULT AT 261, GOOD AT 260
   .max_rt_delta = 150,
   .max_rt_interval = 250000,
   .max_rate_up = 4,
@@ -22,6 +33,7 @@ typedef struct {
 } ChryslerCuswAddrs;
 
 // CAN messages for Chrysler Compact US Wide platforms
+// At this time, not differentiating by Car
 const ChryslerCuswAddrs CHRYSLER_CUSW_ADDRS = {
   .BRAKE_1          = 0x1E4,
   .BRAKE_2          = 0x2E2,
@@ -47,8 +59,13 @@ RxCheck chrysler_cusw_rx_checks[] = {
   {.msg = {{CHRYSLER_CUSW_ADDRS.ACC_CONTROL, 0, 8, .check_checksum = true, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
 };
 
-const ChryslerCuswAddrs *chrysler_cusw_addrs = &CHRYSLER_CUSW_ADDRS;
+typedef enum {
+  CHRYSLER_CUSW_GENERIC,
+  JEEP_CHEROKEE_5TH_GEN,
+} CUSWCar;
 
+CUSWCar cusw_car = CHRYSLER_CUSW_GENERIC;
+const ChryslerCuswAddrs *chrysler_cusw_addrs = &CHRYSLER_CUSW_ADDRS;
 
 static uint8_t chrysler_cusw_get_counter(const CANPacket_t *to_push) {
   int counter_byte = GET_LEN(to_push) - 2U;
@@ -91,21 +108,28 @@ static void chrysler_cusw_rx_hook(const CANPacket_t *to_push) {
   generic_rx_checks((bus == 0) && (addr == chrysler_cusw_addrs->LKAS_COMMAND));
 }
 
+match CAR: 
+
 static bool chrysler_cusw_tx_hook(const CANPacket_t *to_send) {
   bool tx = true;
   int addr = GET_ADDR(to_send);
 
-  //if (addr == chrysler_cusw_addrs->LKAS_COMMAND) {
-  //  // Signal: LKAS_COMMAND.STEERING_TORQUE
-  //  int desired_torque = ((GET_BYTE(to_send, 0)) << 3) | ((GET_BYTE(to_send, 1) & 0xE0U) >> 5);
-  //  desired_torque -= 1024;
+  if (addr == chrysler_cusw_addrs->LKAS_COMMAND) {
+    // Signal: LKAS_COMMAND.STEERING_TORQUE
+    int desired_torque = ((GET_BYTE(to_send, 0)) << 3) | ((GET_BYTE(to_send, 1) & 0xE0U) >> 5);
+    desired_torque -= 1024;
 
-  //  // Signal: LKAS_COMMAND.LKAS_CONTROL_BIT
-  //  const bool steer_req = GET_BIT(to_send, 12U);
-  //  if (steer_torque_cmd_checks(desired_torque, steer_req, CHRYSLER_CUSW_STEERING_LIMITS)) {
-  //    tx = false;
-  //  }
-  //}
+    // Update Platform Steering Limits with Car Steering Limits, If Applicable
+    if  (cusw_car == JEEP_CHEROKEE_5TH_GEN) {
+       memcpy(&CHRYSLER_CUSW_STEERING_LIMITS, &JEEP_CHEROKEE_5TH_GEN_STEERING_LIMITS, sizeof(SteeringLimits));
+    }
+
+    // Signal: LKAS_COMMAND.LKAS_CONTROL_BIT
+    const bool steer_req = GET_BIT(to_send, 12U);
+    if (steer_torque_cmd_checks(desired_torque, steer_req, CHRYSLER_CUSW_STEERING_LIMITS)) {
+      tx = false;
+    }
+  }
 
   if (addr == chrysler_cusw_addrs->CRUISE_BUTTONS) {
     // Signal: CRUISE_BUTTONS.ACC_Cancel
