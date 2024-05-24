@@ -108,8 +108,6 @@ static void chrysler_cusw_rx_hook(const CANPacket_t *to_push) {
   generic_rx_checks((bus == 0) && (addr == chrysler_cusw_addrs->LKAS_COMMAND));
 }
 
-match CAR: 
-
 static bool chrysler_cusw_tx_hook(const CANPacket_t *to_send) {
   bool tx = true;
   int addr = GET_ADDR(to_send);
