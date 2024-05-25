@@ -171,8 +171,16 @@ static int chrysler_cusw_fwd_hook(int bus_num, int addr) {
   return bus_fwd;
 }
 
-static safety_config chrysler_cusw_init(uint16_t param) {
+static safety_config chrysler_cusw__init(uint16_t param) {
   UNUSED(param);
+  cusw_car = CHRYSLER_CUSW_GENERIC;
+  chrysler_cusw_addrs = &CHRYSLER_CUSW_ADDRS;
+  return BUILD_SAFETY_CFG(chrysler_cusw_rx_checks, CHRYSLER_CUSW_TX_MSGS);
+}
+
+static safety_config chrysler_jeep_cherokee_5th_gen_init(uint16_t param) {
+  UNUSED(param);
+  cusw_car = JEEP_CHEROKEE_5TH_GEN;
   chrysler_cusw_addrs = &CHRYSLER_CUSW_ADDRS;
   return BUILD_SAFETY_CFG(chrysler_cusw_rx_checks, CHRYSLER_CUSW_TX_MSGS);
 }
