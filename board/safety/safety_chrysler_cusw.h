@@ -70,17 +70,17 @@ CUSWCar cusw_car = CHRYSLER_CUSW_GENERIC;
 const ChryslerCuswAddrs *chrysler_cusw_addrs = &CHRYSLER_CUSW_ADDRS;
 
 static uint8_t chrysler_cusw_get_counter(const CANPacket_t *to_push) {
-//  int counter_byte = GET_LEN(to_push) - 2U;
-  const int addr = GET_ADDR(to_push);
-  uint8_t counter = 0;
-  if (addr == CHRYSLER_CUSW_ADDRS.CRUISE_BUTTONS) {
-    counter = GET_BYTE(to_push, counter_byte) >> 4U;
-  } else {
-    counter = GET_BYTE(to_push, counter_byte) & 0xFU;
+  int counter_byte = GET_LEN(to_push) - 2U;
+  //const int addr = GET_ADDR(to_push);
+  //uint8_t counter = 0;
+  //if (addr == CHRYSLER_CUSW_ADDRS.CRUISE_BUTTONS) {
+    //counter = GET_BYTE(to_push, counter_byte) >> 4U;
+  //} else {
+    //counter = GET_BYTE(to_push, counter_byte) & 0xFU;
   }
 
-  return counter;  
-//  return (uint8_t)(GET_BYTE(to_push, counter_byte) & 0xFU);
+  //return counter;  
+  return (uint8_t)(GET_BYTE(to_push, counter_byte) & 0xFU);
 }
 
 static void chrysler_cusw_rx_hook(const CANPacket_t *to_push) {
