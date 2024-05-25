@@ -1,7 +1,7 @@
 #include "safety_chrysler_common.h"
 
 const SteeringLimits CHRYSLER_CUSW_STEERING_LIMITS = {
-  .max_steer = 260, // 2019 MODEL TEST, FAULT AT 261, GOOD AT 260
+  .max_steer = 255, // 2019 MODEL TEST, FAULT AT 261, GOOD AT 255
   .max_rt_delta = 150,
   .max_rt_interval = 250000,
   .max_rate_up = 4,
@@ -12,7 +12,7 @@ const SteeringLimits CHRYSLER_CUSW_STEERING_LIMITS = {
 
 // Staging for future Sub-Platform  Logic
 const SteeringLimits JEEP_CHEROKEE_5TH_GEN_STEERING_LIMITS = {
-  .max_steer = 260, // 2019 MODEL TEST, FAULT AT 261, GOOD AT 260
+  .max_steer = 255, // 2019 MODEL TEST, FAULT AT 261, GOOD AT 255
   .max_rt_delta = 150,
   .max_rt_interval = 250000,
   .max_rate_up = 4,
