@@ -173,16 +173,38 @@ static int chrysler_cusw_fwd_hook(int bus_num, int addr) {
 
 static safety_config chrysler_cusw__init(uint16_t param) {
   UNUSED(param);
-  cusw_car = CHRYSLER_CUSW_GENERIC;
+
+  //bool enable_jeep_cherokee_5th_gen = GET_FLAG(param, CUSW_PARAM_JEEP_CHEROKEE_5TH_GEN);
+  bool enable_jeep_cherokee_5th_gen = False;
+  if (enable_jeep_cherokee_5th_gen) {
+    cusw_car = JEEP_CHEROKEE_5TH_GEN;
+  } else {
+    cusw_car = CHRYSLER_CUSW_GENERIC;
+  }
   chrysler_cusw_addrs = &CHRYSLER_CUSW_ADDRS;
   return BUILD_SAFETY_CFG(chrysler_cusw_rx_checks, CHRYSLER_CUSW_TX_MSGS);
 }
 
-static safety_config chrysler_jeep_cherokee_5th_gen_init(uint16_t param) {
-  UNUSED(param);
-  cusw_car = JEEP_CHEROKEE_5TH_GEN;
-  chrysler_cusw_addrs = &CHRYSLER_CUSW_ADDRS;
-  return BUILD_SAFETY_CFG(chrysler_cusw_rx_checks, CHRYSLER_CUSW_TX_MSGS);
+static safety_config chrysler_init(uint16_t param) {
+  safety_config ret;
+
+  bool enable_ram_dt = GET_FLAG(param, CHRYSLER_PARAM_RAM_DT);
+  if (enable_ram_dt) {
+    chrysler_platform = CHRYSLER_RAM_DT;
+    chrysler_addrs = &CHRYSLER_RAM_DT_ADDRS;
+    ret = BUILD_SAFETY_CFG(chrysler_ram_dt_rx_checks, CHRYSLER_RAM_DT_TX_MSGS);
+#ifdef ALLOW_DEBUG
+  } else if (GET_FLAG(param, CHRYSLER_PARAM_RAM_HD)) {
+    chrysler_platform = CHRYSLER_RAM_HD;
+    chrysler_addrs = &CHRYSLER_RAM_HD_ADDRS;
+    ret = BUILD_SAFETY_CFG(chrysler_ram_hd_rx_checks, CHRYSLER_RAM_HD_TX_MSGS);
+#endif
+  } else {
+    chrysler_platform = CHRYSLER_PACIFICA;
+    chrysler_addrs = &CHRYSLER_ADDRS;
+    ret = BUILD_SAFETY_CFG(chrysler_rx_checks, CHRYSLER_TX_MSGS);
+  }
+  return ret;
 }
 
 const safety_hooks chrysler_cusw_hooks = {
