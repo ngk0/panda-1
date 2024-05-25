@@ -185,28 +185,6 @@ static safety_config chrysler_cusw__init(uint16_t param) {
   return BUILD_SAFETY_CFG(chrysler_cusw_rx_checks, CHRYSLER_CUSW_TX_MSGS);
 }
 
-static safety_config chrysler_init(uint16_t param) {
-  safety_config ret;
-
-  bool enable_ram_dt = GET_FLAG(param, CHRYSLER_PARAM_RAM_DT);
-  if (enable_ram_dt) {
-    chrysler_platform = CHRYSLER_RAM_DT;
-    chrysler_addrs = &CHRYSLER_RAM_DT_ADDRS;
-    ret = BUILD_SAFETY_CFG(chrysler_ram_dt_rx_checks, CHRYSLER_RAM_DT_TX_MSGS);
-#ifdef ALLOW_DEBUG
-  } else if (GET_FLAG(param, CHRYSLER_PARAM_RAM_HD)) {
-    chrysler_platform = CHRYSLER_RAM_HD;
-    chrysler_addrs = &CHRYSLER_RAM_HD_ADDRS;
-    ret = BUILD_SAFETY_CFG(chrysler_ram_hd_rx_checks, CHRYSLER_RAM_HD_TX_MSGS);
-#endif
-  } else {
-    chrysler_platform = CHRYSLER_PACIFICA;
-    chrysler_addrs = &CHRYSLER_ADDRS;
-    ret = BUILD_SAFETY_CFG(chrysler_rx_checks, CHRYSLER_TX_MSGS);
-  }
-  return ret;
-}
-
 const safety_hooks chrysler_cusw_hooks = {
   .init = chrysler_cusw_init,
   .rx = chrysler_cusw_rx_hook,
