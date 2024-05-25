@@ -171,7 +171,7 @@ static int chrysler_cusw_fwd_hook(int bus_num, int addr) {
   return bus_fwd;
 }
 
-static safety_config chrysler_cusw__init(uint16_t param) {
+static safety_config chrysler_cusw_init(uint16_t param) {
   UNUSED(param);
 
   //bool enable_jeep_cherokee_5th_gen = GET_FLAG(param, CUSW_PARAM_JEEP_CHEROKEE_5TH_GEN);
