@@ -77,7 +77,7 @@ static uint8_t chrysler_cusw_get_counter(const CANPacket_t *to_push) {
     //counter = GET_BYTE(to_push, counter_byte) >> 4U;
   //} else {
     //counter = GET_BYTE(to_push, counter_byte) & 0xFU;
-  }
+  //}
 
   //return counter;  
   return (uint8_t)(GET_BYTE(to_push, counter_byte) & 0xFU);
