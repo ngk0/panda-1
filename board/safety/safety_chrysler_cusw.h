@@ -119,7 +119,7 @@ static bool chrysler_cusw_tx_hook(const CANPacket_t *to_send) {
 
     // Update Platform Steering Limits with Car Steering Limits, If Applicable
     if  (cusw_car == JEEP_CHEROKEE_5TH_GEN) {
-       memcpy(&CHRYSLER_CUSW_STEERING_LIMITS, &JEEP_CHEROKEE_5TH_GEN_STEERING_LIMITS, sizeof(SteeringLimits));
+       memcpy((void*)&CHRYSLER_CUSW_STEERING_LIMITS, (void*)&JEEP_CHEROKEE_5TH_GEN_STEERING_LIMITS, sizeof(SteeringLimits));
     }
 
     // Signal: LKAS_COMMAND.LKAS_CONTROL_BIT
