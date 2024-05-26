@@ -171,9 +171,10 @@ static safety_config chrysler_cusw_init(uint16_t param) {
   } else {
     cusw_car = CHRYSLER_CUSW_GENERIC;
   }
-  chrysler_cusw_addrs = &CHRYSLER_CUSW_ADDRS;
+
   return BUILD_SAFETY_CFG(chrysler_cusw_rx_checks, CHRYSLER_CUSW_TX_MSGS);
 }
+
 
 const safety_hooks chrysler_cusw_hooks = {
   .init = chrysler_cusw_init,
