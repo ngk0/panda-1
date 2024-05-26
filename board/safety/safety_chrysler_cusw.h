@@ -59,8 +59,8 @@ RxCheck chrysler_cusw_rx_checks[] = {
   {.msg = {{CHRYSLER_CUSW_ADDRS.ACC_CONTROL, 0, 8, .check_checksum = true, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
 };
 
-const uint32_t CHRYSLER_PARAM_CUSW_GENERIC = 1U;  // set for CUSW Platform, General Cars
-const uint32_t CHRYSLER_PARAM_JEEP_CHEROKEE_5TH_GEN = 2U;  // set for CUSW Platform, JC5G
+const uint32_t CHRYSLER_CUSW_PARAM_GENERIC = 1U;  // set for CUSW Platform, General Cars
+const uint32_t CHRYSLER_CUSW_PARAM_JEEP_CHEROKEE_5TH_GEN = 2U;  // set for CUSW Platform, JC5G
 
 typedef enum {
   CHRYSLER_CUSW_GENERIC,
@@ -165,8 +165,7 @@ static int chrysler_cusw_fwd_hook(int bus_num, int addr) {
 static safety_config chrysler_cusw_init(uint16_t param) {
   UNUSED(param);
 
-  //bool enable_jeep_cherokee_5th_gen = GET_FLAG(param, CUSW_PARAM_JEEP_CHEROKEE_5TH_GEN);
-  bool enable_jeep_cherokee_5th_gen = false;
+  bool enable_jeep_cherokee_5th_gen = GET_FLAG(param, CHRYSLER_CUSW_PARAM_JEEP_CHEROKEE_5TH_GEN);
   if (enable_jeep_cherokee_5th_gen) {
     cusw_car = JEEP_CHEROKEE_5TH_GEN;
   } else {
