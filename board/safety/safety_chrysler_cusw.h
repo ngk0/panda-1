@@ -59,6 +59,9 @@ RxCheck chrysler_cusw_rx_checks[] = {
   {.msg = {{CHRYSLER_CUSW_ADDRS.ACC_CONTROL, 0, 8, .check_checksum = true, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
 };
 
+const uint32_t CHRYSLER_PARAM_CUSW_GENERIC = 1U;  // set for CUSW Platform, General Cars
+const uint32_t CHRYSLER_PARAM_JEEP_CHEROKEE_5TH_GEN = 2U;  // set for CUSW Platform, JC5G
+
 typedef enum {
   CHRYSLER_CUSW_GENERIC,
   JEEP_CHEROKEE_5TH_GEN,
