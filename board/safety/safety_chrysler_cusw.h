@@ -33,7 +33,7 @@ typedef struct {
 } ChryslerCuswAddrs;
 
 // CAN messages for Chrysler Compact US Wide platforms
-// At this time, not differentiating by Car
+// At this time, not differentiating by Car, treating as common
 const ChryslerCuswAddrs CHRYSLER_CUSW_ADDRS = {
   .BRAKE_1          = 0x1E4,
   .BRAKE_2          = 0x2E2,
@@ -56,8 +56,6 @@ RxCheck chrysler_cusw_rx_checks[] = {
   {.msg = {{CHRYSLER_CUSW_ADDRS.BRAKE_2, 0, 8, .check_checksum = true, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
   {.msg = {{CHRYSLER_CUSW_ADDRS.EPS_STATUS, 0, 8, .check_checksum = true, .max_counter = 15U, .frequency = 100U}, { 0 }, { 0 }}},
   {.msg = {{CHRYSLER_CUSW_ADDRS.ACCEL_GAS, 0, 5, .check_checksum = true, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
-  // TODO: CRUISE_BUTTONS checksum validation
-  {.msg = {{CHRYSLER_CUSW_ADDRS.CRUISE_BUTTONS, 0, 3, .check_checksum = false, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
   {.msg = {{CHRYSLER_CUSW_ADDRS.ACC_CONTROL, 0, 8, .check_checksum = true, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
 };
 
@@ -70,16 +68,7 @@ CUSWCar cusw_car = CHRYSLER_CUSW_GENERIC;
 const ChryslerCuswAddrs *chrysler_cusw_addrs = &CHRYSLER_CUSW_ADDRS;
 
 static uint8_t chrysler_cusw_get_counter(const CANPacket_t *to_push) {
-  int counter_byte = GET_LEN(to_push) - 2U;
-  //const int addr = GET_ADDR(to_push);
-  //uint8_t counter = 0;
-  //if (addr == CHRYSLER_CUSW_ADDRS.CRUISE_BUTTONS) {
-    //counter = GET_BYTE(to_push, counter_byte) >> 4U;
-  //} else {
-    //counter = GET_BYTE(to_push, counter_byte) & 0xFU;
-  //}
-
-  //return counter;  
+  int counter_byte = GET_LEN(to_push) - 2U; 
   return (uint8_t)(GET_BYTE(to_push, counter_byte) & 0xFU);
 }
 
@@ -122,16 +111,15 @@ static void chrysler_cusw_rx_hook(const CANPacket_t *to_push) {
 static bool chrysler_cusw_tx_hook(const CANPacket_t *to_send) {
   bool tx = true;
   int addr = GET_ADDR(to_send);
-
+  
+  if (cusw_car == JEEP_CHEROKEE_5TH_GEN) {
+    memcpy((void*)&CHRYSLER_CUSW_STEERING_LIMITS, (void*)&JEEP_CHEROKEE_5TH_GEN_STEERING_LIMITS, sizeof(SteeringLimits));
+  }  
+  
   if (addr == chrysler_cusw_addrs->LKAS_COMMAND) {
     // Signal: LKAS_COMMAND.STEERING_TORQUE
     int desired_torque = ((GET_BYTE(to_send, 0)) << 3) | ((GET_BYTE(to_send, 1) & 0xE0U) >> 5);
     desired_torque -= 1024;
-
-    // Update Platform Steering Limits with Car Steering Limits, If Applicable
-    if  (cusw_car == JEEP_CHEROKEE_5TH_GEN) {
-       memcpy((void*)&CHRYSLER_CUSW_STEERING_LIMITS, (void*)&JEEP_CHEROKEE_5TH_GEN_STEERING_LIMITS, sizeof(SteeringLimits));
-    }
 
     // Signal: LKAS_COMMAND.LKAS_CONTROL_BIT
     const bool steer_req = GET_BIT(to_send, 12U);
@@ -142,9 +130,9 @@ static bool chrysler_cusw_tx_hook(const CANPacket_t *to_send) {
 
   if (addr == chrysler_cusw_addrs->CRUISE_BUTTONS) {
     // Signal: CRUISE_BUTTONS.ACC_Cancel
+    const bool is_cancel = GET_BYTE(to_send, 0) == 1U;
     // Signal: CRUISE_BUTTONS.ACC_Resume
-    const bool is_cancel = GET_BIT(to_send, 0U);
-    const bool is_resume = GET_BIT(to_send, 4U);
+    const bool is_resume = GET_BYTE(to_send, 0) == 0x10U;
     const bool allowed = is_cancel || (is_resume && controls_allowed);
     if (!allowed) {
       tx = false;
